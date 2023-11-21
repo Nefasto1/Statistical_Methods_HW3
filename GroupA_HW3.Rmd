@@ -7,18 +7,17 @@ date: "2023-11-20"
 # FSDS - Chapter 6
 
 ### Exercise 6.12
-For the *UN* data file at the book’s website (see Exercise 1.24), construct a multiple regression
+For the *UN* data file at the book’s website (see Exercise 1.24), construct a multiple regrSSEion
 model predicting Internet using all the other variables. Use the concept of multicollinearity
 to explain why adjusted $R^2$ is not dramatically greater than when GDP is the sole predictor.
-Compare the estimated GDP effect in the bivariate model and the multiple regression model
-and explain why it is so much weaker in the multiple regression model.
+Compare the estimated GDP effect in the bivariate model and the multiple regrSSEion model
+and explain why it is so much weaker in the multiple regrSSEion model.
 
 *Solution*
 
 ```{r}
 UN.data <- read.table("UN.txt", header=T)
 ```
-
 
 ```{r}
 full.model <- lm(Internet ~ GDP + HDI + GII + Fertility + CO2 + Homicide + Prison, data=UN.data)
@@ -28,42 +27,64 @@ summary(full.model)
 GDP.model <- lm(Internet ~ GDP, data=UN.data)
 summary(GDP.model)
 ```
-```{r}
+
+```{r mSSEage=FALSE, warning=FALSE, include=FALSE}
 library("olsrr")
+```
+
+```{r}
 ols_vif_tol(full.model)
 ```
-The increase on the adjusted $R^2$ is not dramatically high because the $R^2$ because it penalizes the $R^2$ value by the number of parameters. Then, only if the increase of explained variance is significative, the adjusted $R^2$ will increase dramatically.
-From the Variance Inflation Factor we can see that the covariate HDI has value greater than 10, which suggest the multicollinearity. Similarly the covariates GDP and GII have a really high value which means that most information could be obtained from the other informations.
+
+The increase on the adjusted $R^2$ is not dramatically high because it penalizes the $R^2$ value by the number of parameters. Then, only if the increase of explained variance is significative, the adjusted $R^2$ will increase dramatically.
+From the Variance Inflation Factor (VIF) we can see that the covariate HDI has value greater than 10, which suggest the multicollinearity. Similarly the covariates GDP and GII have a really high value which means that most information could be obtained from the other informations.
 
 ### Exercise 6.14
-The data set30 *Crabs2* at the book’s website comes from a study of factors that affect sperm traits of male horseshoe crabs. A response variable, SpermTotal, is the log of the total number of sperm in an ejaculate. It has $\bar{y} = 19.3$ and $s = 2.0$. The two explanatory variables used in the R output are the horseshoe crab’s carapace width (CW, mean 18.6 cm, standard deviation 3.0 cm), which is a measure of its size, and color (1 = dark, 2 = medium, 3 = light), which is a measure of adult age, darker ones being older.
+The dataset *Crabs2* at the book’s website comes from a study of factors that affect sperm traits of male horseshoe crabs. A response variable, SpermTotal, is the log of the total number of sperm in an ejaculate. It has $\bar{y} = 19.3$ and $s = 2.0$. The two explanatory variables used in the R output are the horseshoe crab’s carapace width (CW, mean 18.6 cm, standard deviation 3.0 cm), which is a measure of its size, and color (1 = dark, 2 = medium, 3 = light), which is a measure of adult age, darker ones being older.
 (a) Using the results shown, write the prediction equation and interpret the parameter estimates.
 (b) Explain the differences in what is tested with the F statistic (i) for the overall model, (ii)
 for the factor(Color) effect, (iii) for the interaction term. Interpret each.
+
+```{r echo=FALSE, warning=FALSE}
+Crabs2 <- read.table("Crabs2.txt", header=T)
+summary(lm(SpermTotal ~ CW + factor(Color), data=Crabs2))
+library(car)
+Anova(lm(SpermTotal ~ CW + factor(Color) + CW:factor(Color), data=Crabs2))
+```
 
 *Solution*
 
 (a) $y = \beta_0 + \beta_1x_{CW} + \beta_2x_{medium} + \beta_3x_{light}$
 The increase of the carapace width leads to the increase of the amount of the sperm. Therefore the lighter the color is, the more is the increase of the amount.
-(b) The analisys of variance test if the difference in the means are the same. From the results we can see that the CW and the color have a small p-value, then null hypotesis is rejected and then we have an increase of the amount of the sperm on the increase of CW and Color. The interation doesn't have a big effect in the prediction.
+(b) The analysis of variance (ANOVA) test if the difference in the means are the same. From the results we can see that the CW and the color have a small p-value, then null hypotesis is rejected and then we have an increase of the amount of the sperm on the increase of CW and Color. The interaction doesn't have a big effect in the prediction.
 
 
 ### Exercise 6.30
 When the values of y are multiplied by a constant c, from their formulas, show that $s_y$ and $\hat\beta_1$
-in the bivariate linear model are also then multiplied by c. Thus, show that $r = \hat\beta_1(s_x~s_y)$ does
+in the bivariate linear model are also then multiplied by c. Thus, show that $r = \hat\beta_1(s_x/s_y)$ does
 not depend on the units of measurement.
 
 *Solution*
 
-$y = \beta_0 + \beta_1x_1 + \beta_2x_2 + e$ with $e$ ~ $N(0, \sigma^2X^TX)$ then $y$ ~ $N(\beta_0 + \beta_1x_1 + \beta_2x_2, \sigma^2X^TX)$
+b0 = mean(X) + b1 mean(Y)
 
-$cy = c(\beta_0 + \beta_1x_1 + \beta_2x_2 + e)$ and then $y$ ~ $N(c\beta_0 + c\beta_1x_1 + c\beta_2x_2, c^2\sigma^2X^TX)$
 
-$\hat\beta = (X^TX)^{-1}X^Ty$ then $(X^TX)^{-1}X^Tcy = c(X^TX)^{-1}X^Ty = c\hat\beta$
+$y = \beta_0 + \beta_1x_1 + e$ with $e$ ~ $N(0, \sigma^2X^TX)$ then $y$ ~ $N(\beta_0 + \beta_1x_1, \sigma^2X^TX)$
+
+$cy = c(\beta_0 + \beta_1x_1 + e)$ and then $y$ ~ $N(c\beta_0 + c\beta_1x_1, c^2\sigma^2X^TX)$
+or
+$\rho \frac{s_{cy}}{s_x} = \rho \frac{c \cdot s_y}{s_x}$
+
+$\hat\beta_1 = \frac{cov(x, y)}{Var(x)} = \rho \frac{c \cdot s_y}{s_x}$ then $\frac{cov(x, cy)}{Var(x)} = c \frac{cov(x, y)}{Var(x)} = c\hat\beta_1$
+
+from this two results we obtain
+
+$\rho = \hat\beta_1 (\frac{s_x}{s_{y^*}}) = c \hat\beta_1 (\frac{s_x}{c s_{y}}) = \hat\beta_1 (\frac{s_x}{s_y})$ with $y^* = cy$ 
+
 
 ### Exercise 6.42
-You can fit the quadratic equation $E(Y) = \beta_0 +\beta_1x+\beta_2x^2$ by fitting a multiple regression model
-with $x_1 = x$ and $x_2 = x_2$.
+You can fit the quadratic equation $E(Y) = \beta_0 +\beta_1x+\beta_2x^2$ by fitting a multiple regrSSEion model
+with $x_1 = x$ and $x_2 = x^2$.
 (a) Simulate 100 independent observations from the model $Y = 40.0−5.0x+0.5x^2 + e$, where X
 has a uniform distribution over $[0, 10]$ and $ϵ ∼ N(0, 1)$. Plot the data and fit the quadratic model. Report how the fitted equation compares with the true relationship.
 (b) Find the correlation between x and y and explain why it is so weak even though the plot
@@ -95,24 +116,111 @@ lines(x, b0 + b1*x + b2*x^2, col="red", lwd=2)
 (a) With the quadratic model we have that the predicted line is similar perfectly fitting the data. The predicted parameters are very near to the real ones.
 
 (b) The correlation is really small because the data are symmetric and then there is not a linear relationship 
+```{r}
+cor(x, Y)
+```
+
 
 ### Exercise 6.52
 F statistics have alternate expressions in terms of $R^2$ values.
-(a) Show that for testing $H_0: \beta_1 = ⋯ = \beta_p = 0$,
 
+(a) Show that for testing $H_0: \beta_1 = ⋯ = \beta_p = 0$,
 $F = \frac{(TSS − SSE)/p}{SSE/[n − (p + 1)]}$ is equivalently $\frac{R^2/p}{(1 − R^2)/[n − (p + 1)]}$
-Explain why larger values of R2 yield larger values of F.
+Explain why larger values of $R^2$ yield larger values of F.
 (b) Show that for comparing nested linear models,
 $F = \frac{(SSE_0 − SSE_1)/(p_1 − p_0)}{SSE_1/[n − (p_1 + 1)]} = \frac{(R^2_1 − R^2_0)/(p_1 − p_0)}{(1 − R^2_1)/[n − (p_1 + 1)]}$
 
 *Solution*
 
+(a) $R^2 = \frac{RSS}{TSS} = \frac{TSS - SSE}{TSS}$
+
+    $1 - R^2 = 1 - (1 - \frac{SSE}{TSS}) = \frac{SSE}{TSS}$
+    
+    $F = \frac{R^2/p}{(1 − R^2)/[n − (p + 1)]} = \frac{\frac{TSS - SSE}{TSS}/p}{(\frac{SSE}{TSS})/[n − (p + 1)]} = \frac{(TSS − SSE)/p}{SSE/[n − (p + 1)]}$
+    
+```{r}
+p <- 12
+n <- 23
+TSS <- 65
+SSE <- 52
+R2 <- 1 - SSE/TSS
+
+c(((TSS - SSE)/p)/(SSE/(n-p-1)), (R2/p)/((1-R2)/(n-p-1)))
+```
+
+(b) $R^2 = 1 - \frac{SSE}{TSS}$
+    $1 - R^2 = 1 - (1 - \frac{SSE}{TSS}) = \frac{SSE}{TSS}$
+    
+    $TSS_0 = TSS_1 = TSS$ because it is a nested model
+    
+    $F = \frac{(R^2_1 − R^2_0)/(p_1 − p_0)}{(1 − R^2_1)/[n − (p_1 + 1)]} = \frac{((1 -\frac{SSE_1}{TSS}) - (1 -\frac{SSE_0}{TSS}))/(p_1-p_0)}{\frac{SSE_1}{TSS}/(n-p_1-1)} = \frac{(SSE_0 - SSE_1)/(p_1-p_0)}{SSE_1/(n-p_1-1)}$
+
+```{r}
+p0 <- 18
+p1 <- 27
+n <- 23
+TSS <- 65
+SSE0 <- 50
+SSE1 <- 34
+R21 <- 1 - SSE1/TSS
+R20 <- 1 - SSE0/TSS
+
+c( ((SSE0 - SSE1)/(p1 - p0))/(SSE1/(n-p1-1)), ((R21 - R20)/(p1 - p0))/((1-R21)/(n-p1-1)))
+```
+
+
 # FSDS - Chapter 7
 ### Exercise 7.4
-Analogously to the previous exercise, randomly sample 30 X observations from a uniform in the interval $(-4,4)$ and conditional on $X = x$, 
+Analogously to the previous exercise, randomly sample 30 $X$ observations from a uniform in the interval $(-4,4)$ and conditional on $X = x$, 
 30 normal observations with $E(Y) = 3.5x^3 − 20x^2 + 0.5x + 20$ and $σ = 30$. Fit polynomial normal GLMs of lower and higher order than that of the true relationship. Which model would you suggest? Repeat the same task for $E(Y) = 0.5x^3 − 20x^2 + 0.5x + 20$ (same $\sigma$) several times. What do you observe? Which model would you suggest now?
 
 *Solution*
+
+```{r}
+x <- runif(30, -4, 4)
+x <- sort(x)
+e <- rnorm(30, 0, 30)
+y <- 3.5*x^3 + 20*x^2 + 0.5*x + 20
+```
+
+```{r}
+model1 <- glm(y ~ x)
+summary(model1)
+```
+```{r}
+model2 <- glm(y ~ x + I(x^2) + I(x^3))
+summary(model2)
+```
+
+```{r}
+model3 <- glm(y ~ x + I(x^2) + I(x^3) + I(x^4))
+summary(model3)
+```
+It is better to take the model with an higher number of parameters since it can explain better the variability of the population's distribution. In this case we have that the AIC is penalized by the presence of non significative parameters for our model. Nevertheless it is still preferable to choose this model over the one with less parameters.
+
+```{r}
+x <- runif(30, -4, 4)
+x <- sort(x)
+e <- rnorm(30, 0, 30)
+y <- 0.5*x^3 - 20*x^2 + 0.5*x + 20
+```
+
+```{r}
+model1 <- glm(y ~ x)
+summary(model1)
+```
+
+```{r}
+model2 <- glm(y ~ x + I(x^2) + I(x^3))
+summary(model2)
+```
+
+```{r}
+model3 <- glm(y ~ x + I(x^2) + I(x^3) + I(x^4))
+summary(model3)
+```
+
+Even in this case we choose the model with more parameters for the same reasons above.
 
 ### Exercise 7.20
 In the *Crabs* data file introduced in Section 7.4.2, the variable y indicates whether a female horseshoe crab has at least one satellite (1 = yes, 0 = no).
