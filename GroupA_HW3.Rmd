@@ -346,5 +346,68 @@ year from 2001 to 2013 were 33, 29, 29, 12, 17, 21, 31, 28, 19, 14, 11, 26, 23. 
 consistent with a null Poisson model? Explain, and compare aspects of the Poisson model and
 negative binomial model fits.
 
+```{r}
+y <- c(33, 29, 29, 12, 17, 21, 31, 28, 19, 14, 11, 26, 23)
+
+lam <- mean(y)
+
+fit <- glm(y ~ 1, family = poisson(link = "log"))
+summary(fit)
+
+library(MASS)
+
+fit2 <- glm.nb(y ~ 1)
+summary(fit2)
+
+```
+
+
 # DAAG - Chapter 8
 ### Exercise 6
+As in the previous exercise, the function poissonsim() allows for experimentation with Poisson regression. In particular, poissonsim() can be used to simulate Poisson responses with log-rates equal to a + bx, where a and b are fixed values by default.
+
+(a) Simulate 100 Poisson responses using the model $\log\lambda = 2 − 4x$ for x = 0, 0.01, 0.02 . . . , 1.0. Fit a Poisson regression model to these data, and compare the estimated coefficients with the true coefficients. How well does the estimated model predict future observations?
+(b) Simulate 100 Poisson responses using the model $\log\lambda = 2 − bx$ where b is normally distributed with mean 4 and standard deviation 5. [Use the argument $slope.sd=5$ in the poissonsim() function.] How do the results using the poisson and quasipoisson families differ?
+
+*Solution*
+
+```{r message=FALSE, warning=FALSE}
+library(DAAG)
+
+simulated <- poissonsim(seq(0, 1, length=100), 2, -4)
+
+fit <- glm(simulated$y ~ simulated$x, family = poisson(link = "log"))
+summary(fit)
+```
+```{r}
+test <- as.list(poissonsim(seq(0, 1, length=100), 2, -4))
+x <- test$x
+y <- test$y
+
+pred <- predict(fit, newdata = data.frame(x), type = "response")
+sum((y - pred)^2) / length(y)
+```
+
+From the summary we can see that the estimated coefficients are very close to the true coefficients. The model predicts future observations correctly.
+
+
+```{r}
+b <- rnorm(1, 4, 5)
+b
+```
+
+
+```{r}
+simulated <- poissonsim(seq(0, 1, length=100), 2, b, slope.sd = 5)
+
+fit.poisson <- glm(simulated$y ~ simulated$x, family = poisson(link = "log"))
+fit.quasi   <- glm(simulated$y ~ simulated$x, family = quasipoisson(link = "log"))
+summary(fit.poisson)
+```
+
+```{r}
+summary(fit.quasi)
+```
+
+As expected, the coefficients found from the two models are the same while the standard errors, and then t and p, are different. The p-values in the quasi-poisson model suggest that the variable x is not statistically significant for the model.
+
