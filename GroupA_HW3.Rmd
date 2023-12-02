@@ -348,7 +348,7 @@ negative binomial model fits.
 
 ```{r}
 ------Barbara------
-Now, to see whether the data really follows a Poisson distribution, we conduct a chi-square goodness of test fit. We start by finding the $\lambda value using the observed number of shark attacks, to then use it to compute what would be the expected counts for each year using the Poisson probability mass  function. From here we use the chisq.test() function to perform the test fit, and we also compute the critical chi-suqare value with $\alpha=0.05 and 12 degrees of freedom.
+Now, to see whether the data really follows a Poisson distribution, we conduct a chi-square goodness of test fit. We start by finding the $\lambda value using the observed number of shark attacks, to then use it to compute what would be the expected counts for each year using the Poisson probability mass  function. From here we use the chisq.test() function to perform the test fit, and we also compute the critical chi-square value with $\alpha=0.05 and 12 degrees of freedom.
 What we obtain is
 
 	> observed.counts<-c(33, 29, 29, 12, 17, 21, 31, 28, 19, 14, 11, 26, 23)
