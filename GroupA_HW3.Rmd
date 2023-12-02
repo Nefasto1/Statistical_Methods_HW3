@@ -347,6 +347,26 @@ consistent with a null Poisson model? Explain, and compare aspects of the Poisso
 negative binomial model fits.
 
 ```{r}
+------Barbara------
+Now, to see whether the data really follows a Poisson distribution, we conduct a chi-square goodness of test fit. We start by finding the $\lambda value using the observed number of shark attacks, to then use it to compute what would be the expected counts for each year using the Poisson probability mass  function. From here we use the chisq.test() function to perform the test fit, and we also compute the critical chi-suqare value with $\alpha=0.05 and 12 degrees of freedom.
+What we obtain is
+
+	> observed.counts<-c(33, 29, 29, 12, 17, 21, 31, 28, 19, 14, 11, 26, 23)
+	> lambda_value<-sum(observed.counts)/length(observed.counts)
+	> expected_counts <- dpois(observed.counts, lambda = lambda_value)
+	> chi_square <- chisq.test(observed.counts, p = expected_counts / sum(expected_counts))
+	> chi_square
+	> critical_value <- qchisq(1 – 0.05, 12)
+	> critical_value
+
+	Chi-squared test for given probabilities
+
+	data:  observed.counts
+	X-squared = 329.31, df = 12, p-value < 2.2e-16
+	[1] 21.02607
+By comparing the critical_value with the chi_square value we see that 329.32>21.026, which means that we have to reject the null hypothesis that the data follow a Poisson distribution.
+
+------Stefano------
 y <- c(33, 29, 29, 12, 17, 21, 31, 28, 19, 14, 11, 26, 23)
 
 lam <- mean(y)
