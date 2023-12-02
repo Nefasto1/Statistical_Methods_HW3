@@ -363,6 +363,7 @@ What we obtain is
 
 	data:  observed.counts
 	X-squared = 329.31, df = 12, p-value < 2.2e-16
+
 	[1] 21.02607
 By comparing the critical_value with the chi_square value we see that 329.32>21.026, which means that we have to reject the null hypothesis that the data follow a Poisson distribution.
 
