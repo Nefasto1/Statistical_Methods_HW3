@@ -7,7 +7,7 @@ date: "2023-11-20"
 # FSDS - Chapter 6
 
 ### Exercise 6.12
-For the *UN* data file at the book’s website (see Exercise 1.24), construct a multiple regrSSEion
+For the *UN* data file at the book’s website (see Exercise 1.24), construct a multiple regression
 model predicting Internet using all the other variables. Use the concept of multicollinearity
 to explain why adjusted $R^2$ is not dramatically greater than when GDP is the sole predictor.
 Compare the estimated GDP effect in the bivariate model and the multiple regrSSEion model
