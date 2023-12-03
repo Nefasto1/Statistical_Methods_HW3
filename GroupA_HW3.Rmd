@@ -182,7 +182,7 @@ n <- 30
 x <- sort(runif(n, -4, 4))
 eps <- rnorm(n, 0, 30)
 y <- 3.5 * x^3 - 20 * x^2 + 0.5 * x + 20 + eps
-data <- data.frame(x = rep(x, each= 30), y = y)
+data <- data.frame(x = x, y = y)
 ```
 
 ```{r}
@@ -211,7 +211,7 @@ b4 <- mod2$coefficients[5]
 
 lines(x, b0 + b1*x + b2*x^2 + b3*x^3 + b4*x^4, col="green", lwd=2)
 
-legend("bottomleft", legend = c("simplier", "complex"), lty=1, col=c("red", "green"))
+legend("topright", legend = c("simple", "complex"), lty=1, col=c("red", "green"), cex=0.6)
 ```
 
 The red curve is the estimate from the simpler method, while the green one is from the more complex one.
@@ -224,7 +224,7 @@ n <- 30
 x <- sort(runif(n, -4, 4))
 eps <- rnorm(n, 0, 30)
 y <- .5 * x^3 - 20 * x^2 + 0.5 * x + 20 + eps
-data <- data.frame(x = rep(x, each= 30), y = y)
+data <- data.frame(x = x, y = y)
 ```
 
 ```{r}
@@ -252,6 +252,7 @@ b3 <- mod2$coefficients[4]
 b4 <- mod2$coefficients[5]
 
 lines(x, b0 + b1*x + b2*x^2 + b3*x^3 + b4*x^4, col="green", lwd=2)
+legend("topright", legend = c("simple", "complex"), lty = 1, col = c("red", "green"), cex = 0.6)
 ```
 
 Let's repeat this task several times and check how the difference between the two AIC's behave:
@@ -265,7 +266,7 @@ for (i in 1:m) {
   x <- sort(runif(n, -4, 4))
   eps <- rnorm(n, 0, 30)
   y <- .5 * x^3 - 20 * x^2 + 0.5 * x + 20 + eps
-  data <- data.frame(x = rep(x, each= 30), y = y)
+  data <- data.frame(x = x, y = y)
   mod1 <- glm(y ~ x + I(x^2), family = gaussian, data=data)
   mod2 <- glm(y ~ x + I(x^2) + I(x^3) + I(x^4), family = gaussian, data=data)
   aics[i] <- (AIC(mod1) - AIC(mod2))/AIC(mod1)
