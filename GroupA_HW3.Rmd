@@ -180,8 +180,8 @@ Randomly sample 30 $X$ observations from a uniform in the interval $(-4,4)$ and 
 set.seed(100)
 n <- 30
 x <- sort(runif(n, -4, 4))
-means <- 3.5 * x^3 - 20 * x^2 + 0.5 * x + 20
-y <- rnorm(n * 30, mean = rep(means, each = 30), sd = 30)
+eps <- rnorm(n, 0, 30)
+y <- 3.5 * x^3 - 20 * x^2 + 0.5 * x + 20 + eps
 data <- data.frame(x = rep(x, each= 30), y = y)
 ```
 
@@ -189,10 +189,12 @@ data <- data.frame(x = rep(x, each= 30), y = y)
 mod1 <- glm(y ~ x + I(x^2), family = gaussian, data=data)
 AIC(mod1)
 ```
+
 ```{r}
 mod2 <- glm(y ~ x + I(x^2) + I(x^3) + I(x^4), family = gaussian, data=data)
 AIC(mod2)
 ```
+
 ```{r echo=FALSE}
 plot(data)
 b0 <- mod1$coefficients[1]
@@ -208,18 +210,20 @@ b3 <- mod2$coefficients[4]
 b4 <- mod2$coefficients[5]
 
 lines(x, b0 + b1*x + b2*x^2 + b3*x^3 + b4*x^4, col="green", lwd=2)
+
+legend("bottomleft", legend = c("simplier", "complex"), lty=1, col=c("red", "green"))
 ```
 
 The red curve is the estimate from the simpler method, while the green one is from the more complex one.
-Here we can see a significant change in the AIC coefficient, indicating that the second model would be more appropriate.
+Here we can see a not significant change in the AIC coefficient, indicating that the simplest model would be more appropriate.
 
 Let's see the other case:
 ```{r}
 set.seed(100)
 n <- 30
 x <- sort(runif(n, -4, 4))
-means <- .5 * x^3 - 20 * x^2 + 0.5 * x + 20
-y <- rnorm(n * 30, mean = rep(means, each = 30), sd = 30)
+eps <- rnorm(n, 0, 30)
+y <- .5 * x^3 - 20 * x^2 + 0.5 * x + 20 + eps
 data <- data.frame(x = rep(x, each= 30), y = y)
 ```
 
@@ -227,10 +231,12 @@ data <- data.frame(x = rep(x, each= 30), y = y)
 mod1 <- glm(y ~ x + I(x^2), family = gaussian, data=data)
 AIC(mod1)
 ```
+
 ```{r}
 mod2 <- glm(y ~ x + I(x^2) + I(x^3) + I(x^4), family = gaussian, data=data)
 AIC(mod2)
 ```
+
 ```{r echo=FALSE}
 plot(data)
 b0 <- mod1$coefficients[1]
@@ -257,9 +263,8 @@ aics <- array(0, dim = m)
 for (i in 1:m) {
   n <- 30
   x <- sort(runif(n, -4, 4))
-  means <- .5 * x^3 - 20 * x^2 + 0.5 * x + 20
-  sd <- 30
-  y <- rnorm(n * 30, mean = rep(means, each = 30), sd = sd)
+  eps <- rnorm(n, 0, 30)
+  y <- .5 * x^3 - 20 * x^2 + 0.5 * x + 20 + eps
   data <- data.frame(x = rep(x, each= 30), y = y)
   mod1 <- glm(y ~ x + I(x^2), family = gaussian, data=data)
   mod2 <- glm(y ~ x + I(x^2) + I(x^3) + I(x^4), family = gaussian, data=data)
@@ -269,6 +274,7 @@ hist(aics)
 ```
 
 In this case the AIC coefficients and the plot indicates that the two models are very similar. Following Occam's razor principle we opt for the simpler method, i.e. the one with less parameters.
+
 
 ### Exercise 7.20
 In the *Crabs* data file introduced in Section 7.4.2, the variable y indicates whether a female horseshoe crab has at least one satellite (1 = yes, 0 = no).
@@ -346,41 +352,61 @@ year from 2001 to 2013 were 33, 29, 29, 12, 17, 21, 31, 28, 19, 14, 11, 26, 23. 
 consistent with a null Poisson model? Explain, and compare aspects of the Poisson model and
 negative binomial model fits.
 
-```{r}
 ------Barbara------
 Now, to see whether the data really follows a Poisson distribution, we conduct a chi-square goodness of test fit. We start by finding the $\lambda value using the observed number of shark attacks, to then use it to compute what would be the expected counts for each year using the Poisson probability mass  function. From here we use the chisq.test() function to perform the test fit, and we also compute the critical chi-square value with $\alpha=0.05 and 12 degrees of freedom.
 What we obtain is
 
-	> observed.counts<-c(33, 29, 29, 12, 17, 21, 31, 28, 19, 14, 11, 26, 23)
-	> lambda_value<-sum(observed.counts)/length(observed.counts)
-	> expected_counts <- dpois(observed.counts, lambda = lambda_value)
-	> chi_square <- chisq.test(observed.counts, p = expected_counts / sum(expected_counts))
-	> chi_square
-	> critical_value <- qchisq(1 – 0.05, 12)
-	> critical_value
+```{r message=FALSE, warning=FALSE}
 
-	Chi-squared test for given probabilities
+observed.counts<-c(33, 29, 29, 12, 17, 21, 31, 28, 19, 14, 11, 26, 23)
+lambda_value<-sum(observed.counts)/length(observed.counts)
+expected_counts <- dpois(observed.counts, lambda = lambda_value)
+chi_square <- chisq.test(observed.counts, p = expected_counts / sum(expected_counts))
+chi_square
+critical_value <- qchisq(1 - 0.05, 12)
+critical_value
+```
 
-	data:  observed.counts
-	X-squared = 329.31, df = 12, p-value < 2.2e-16
-
-	[1] 21.02607
 By comparing the critical_value with the chi_square value we see that 329.32>21.026, which means that we have to reject the null hypothesis that the data follow a Poisson distribution.
 
 ------Stefano------
+### Exercise 7.26
+A headline in The Gainesville Sun (Feb. 17, 2014) proclaimed a worrisome spike in shark
+attacks in the previous two years. The reported total number of shark attacks in Florida per
+year from 2001 to 2013 were 33, 29, 29, 12, 17, 21, 31, 28, 19, 14, 11, 26, 23. Are these counts
+consistent with a null Poisson model? Explain, and compare aspects of the Poisson model and
+negative binomial model fits.
+
+```{r message=FALSE, warning=FALSE}
 y <- c(33, 29, 29, 12, 17, 21, 31, 28, 19, 14, 11, 26, 23)
-
-lam <- mean(y)
-
-fit <- glm(y ~ 1, family = poisson(link = "log"))
-summary(fit)
+x <- 2001:2013
 
 library(MASS)
-
-fit2 <- glm.nb(y ~ 1)
-summary(fit2)
-
 ```
+
+
+```{r message=FALSE, warning=FALSE}
+fit <- glm(y ~ x, family = poisson(link = "log"))
+summary(fit)
+
+fit2 <- glm.nb(y ~ x)
+summary(fit2)
+```
+```{r}
+chi <- summary(fit)$null.deviance - summary(fit)$deviance
+p_value <- 1 - pchisq(chi, df = 1)
+p_value
+```
+
+```{r}
+chi <- summary(fit2)$null.deviance - summary(fit2)$deviance
+p_value <- 1 - pchisq(chi, df = 1)
+p_value
+```
+
+
+
+From the summaries we can see that the Poisson model is a good fit w.r.t the null model because the difference of deviance is statistically significant greater than a value from a $\chi^2_{p-p_0}$. However the negative binomial model is better as a null model because the difference of deviance is not statistically significant greater than a value from a $\chi^2_{p-p_0}$. The coefficients are similar and the AIC suggest that the negative binomial model is better.
 
 
 # DAAG - Chapter 8
