@@ -148,6 +148,9 @@ R2 <- 1 - SSE/TSS
 c(((TSS - SSE)/p)/(SSE/(n-p-1)), (R2/p)/((1-R2)/(n-p-1)))
 ```
 
+Larger values of $R^2$ yield larger values of $F$ since the derivative $dF$ is positive in $[0, 1)$ $$\frac{dF}{dR^2} = \frac{n-p-1}{p (R^2-1)^2}$$
+Moreover, it is reasonable to think that the higher $R^2$ the more efficient the model is, therefore the $F$ statistic increases as there is more evidence against the null hypothesis.
+
 (b) $R^2 = 1 - \frac{SSE}{TSS}$
     $1 - R^2 = 1 - (1 - \frac{SSE}{TSS}) = \frac{SSE}{TSS}$
     
