@@ -1,7 +1,12 @@
 ---
 title: "GroupA_HW3"
-output: html_document
-date: "2023-11-20"
+author: "B. Loletti, S. Tumino, C. Springer, A. Paladino"
+output: 
+  html_document:
+    toc: true
+editor_options: 
+  markdown: 
+    wrap: 72
 ---
 
 # FSDS - Chapter 6
