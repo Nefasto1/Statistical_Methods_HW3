@@ -1,12 +1,8 @@
 ---
 title: "GroupA_HW3"
-author: "B. Loletti, S. Tumino, C. Springer, A. Paladino"
-output: 
-  html_document:
-    toc: true
-editor_options: 
-  markdown: 
-    wrap: 72
+output: html_document
+date: "2023-11-20"
+author: "Barbara Loletti, Annalisa Paladino, Christian Springer, Stefano Tumino"
 ---
 
 # FSDS - Chapter 6
@@ -138,11 +134,9 @@ $F = \frac{(SSE_0 − SSE_1)/(p_1 − p_0)}{SSE_1/[n − (p_1 + 1)]} = \frac{(R^
 *Solution*
 
 (a) $R^2 = \frac{RSS}{TSS} = \frac{TSS - SSE}{TSS}$
-
     $1 - R^2 = 1 - (1 - \frac{SSE}{TSS}) = \frac{SSE}{TSS}$
-    
     $F = \frac{R^2/p}{(1 − R^2)/[n − (p + 1)]} = \frac{\frac{TSS - SSE}{TSS}/p}{(\frac{SSE}{TSS})/[n − (p + 1)]} = \frac{(TSS − SSE)/p}{SSE/[n − (p + 1)]}$
-    
+    A larger value of $R^2$ yield a larger value of F because the numerator is the value of $R^2$ itself multiplied to $n - p - 1$, while the denominator is nearer to zero the larger is the value of $R^2$.
 ```{r}
 p <- 12
 n <- 23
@@ -152,9 +146,6 @@ R2 <- 1 - SSE/TSS
 
 c(((TSS - SSE)/p)/(SSE/(n-p-1)), (R2/p)/((1-R2)/(n-p-1)))
 ```
-
-Larger values of $R^2$ yield larger values of $F$ since the derivative $dF$ is positive in $[0, 1)$ $$\frac{dF}{dR^2} = \frac{n-p-1}{p (R^2-1)^2}$$
-Moreover, it is reasonable to think that the higher $R^2$ the more efficient the model is, therefore the $F$ statistic increases as there is more evidence against the null hypothesis.
 
 (b) $R^2 = 1 - \frac{SSE}{TSS}$
     $1 - R^2 = 1 - (1 - \frac{SSE}{TSS}) = \frac{SSE}{TSS}$
@@ -190,7 +181,7 @@ n <- 30
 x <- sort(runif(n, -4, 4))
 eps <- rnorm(n, 0, 30)
 y <- 3.5 * x^3 - 20 * x^2 + 0.5 * x + 20 + eps
-data <- data.frame(x = x, y = y)
+data <- data.frame(x = rep(x, each= 30), y = y)
 ```
 
 ```{r}
@@ -219,7 +210,7 @@ b4 <- mod2$coefficients[5]
 
 lines(x, b0 + b1*x + b2*x^2 + b3*x^3 + b4*x^4, col="green", lwd=2)
 
-legend("topright", legend = c("simple", "complex"), lty=1, col=c("red", "green"), cex=0.6)
+legend("bottomleft", legend = c("simplier", "complex"), lty=1, col=c("red", "green"))
 ```
 
 The red curve is the estimate from the simpler method, while the green one is from the more complex one.
@@ -232,7 +223,7 @@ n <- 30
 x <- sort(runif(n, -4, 4))
 eps <- rnorm(n, 0, 30)
 y <- .5 * x^3 - 20 * x^2 + 0.5 * x + 20 + eps
-data <- data.frame(x = x, y = y)
+data <- data.frame(x = rep(x, each= 30), y = y)
 ```
 
 ```{r}
@@ -260,7 +251,6 @@ b3 <- mod2$coefficients[4]
 b4 <- mod2$coefficients[5]
 
 lines(x, b0 + b1*x + b2*x^2 + b3*x^3 + b4*x^4, col="green", lwd=2)
-legend("topright", legend = c("simple", "complex"), lty = 1, col = c("red", "green"), cex = 0.6)
 ```
 
 Let's repeat this task several times and check how the difference between the two AIC's behave:
@@ -274,7 +264,7 @@ for (i in 1:m) {
   x <- sort(runif(n, -4, 4))
   eps <- rnorm(n, 0, 30)
   y <- .5 * x^3 - 20 * x^2 + 0.5 * x + 20 + eps
-  data <- data.frame(x = x, y = y)
+  data <- data.frame(x = rep(x, each= 30), y = y)
   mod1 <- glm(y ~ x + I(x^2), family = gaussian, data=data)
   mod2 <- glm(y ~ x + I(x^2) + I(x^3) + I(x^4), family = gaussian, data=data)
   aics[i] <- (AIC(mod1) - AIC(mod2))/AIC(mod1)
@@ -354,7 +344,31 @@ aics
 
 We can see that the biggest gap in AIC score is between the model having weight as covariate and the one having color. We can also see that the model having the lowest AIC score is the one taking into consideration the interaction between weight and color.
 
+### Exercise 7.26
+A headline in The Gainesville Sun (Feb. 17, 2014) proclaimed a worrisome spike in shark
+attacks in the previous two years. The reported total number of shark attacks in Florida per
+year from 2001 to 2013 were 33, 29, 29, 12, 17, 21, 31, 28, 19, 14, 11, 26, 23. Are these counts
+consistent with a null Poisson model? Explain, and compare aspects of the Poisson model and
+negative binomial model fits.
 
+------Barbara------
+Now, to see whether the data really follows a Poisson distribution, we conduct a chi-square goodness of test fit. We start by finding the $\lambda value using the observed number of shark attacks, to then use it to compute what would be the expected counts for each year using the Poisson probability mass  function. From here we use the chisq.test() function to perform the test fit, and we also compute the critical chi-square value with $\alpha=0.05 and 12 degrees of freedom.
+What we obtain is
+
+```{r message=FALSE, warning=FALSE}
+
+observed.counts<-c(33, 29, 29, 12, 17, 21, 31, 28, 19, 14, 11, 26, 23)
+lambda_value<-sum(observed.counts)/length(observed.counts)
+expected_counts <- dpois(observed.counts, lambda = lambda_value)
+chi_square <- chisq.test(observed.counts, p = expected_counts / sum(expected_counts))
+chi_square
+critical_value <- qchisq(1 - 0.05, 12)
+critical_value
+```
+
+By comparing the critical_value with the chi_square value we see that 329.32>21.026, which means that we have to reject the null hypothesis that the data follow a Poisson distribution.
+
+------Stefano------
 ### Exercise 7.26
 A headline in The Gainesville Sun (Feb. 17, 2014) proclaimed a worrisome spike in shark
 attacks in the previous two years. The reported total number of shark attacks in Florida per
@@ -430,7 +444,7 @@ b
 
 
 ```{r}
-simulated <- poissonsim(seq(0, 1, length=100), 2, b, slope.sd = 5)
+simulated <- poissonsim(seq(0, 1, length=100), 2, -b, slope.sd = 5)
 
 fit.poisson <- glm(simulated$y ~ simulated$x, family = poisson(link = "log"))
 fit.quasi   <- glm(simulated$y ~ simulated$x, family = quasipoisson(link = "log"))
