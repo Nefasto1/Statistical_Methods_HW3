@@ -2,7 +2,14 @@
 title: "GroupA_HW3"
 output: html_document
 date: "2023-11-20"
-author: "Barbara Loletti, Annalisa Paladino, Christian Springer, Stefano Tumino"
+author: "B. Loletti, S. Tumino, C. Springer, A. Paladino"
+date: "2023-11-20"
+output: 
+  html_document:
+    toc: true
+editor_options: 
+  markdown: 
+    wrap: 72
 ---
 
 # FSDS - Chapter 6
